@@ -3,8 +3,8 @@
  * Autor:
  *
  * Descripción: 
- *        Este programa espera que se presione una tecla y luego enciende
- *        un led.
+ *        Este programa enciende y apaga un led cada 500 ms.
+ *        Si se presiona una tecla, se muestra F en el display.
  */
 
 #include <xc.h>
@@ -32,7 +32,7 @@
 
 /* ------------------------ Bits de configuración --------------------------- */
 // CONFIG1
-#pragma config FOSC = XT           // Oscillator Selection bits (XT oscillator: Crystal/resonator on RA6/OSC2/CLKOUT and RA7/OSC1/CLKIN)
+#pragma config FOSC = XT        // Oscillator Selection bits (XT oscillator: Crystal/resonator on RA6/OSC2/CLKOUT and RA7/OSC1/CLKIN)
 //#pragma config FOSC = INTRC_NOCLKOUT // Oscillator Selection bits (INTOSCIO oscillator: I/O function on RA6/OSC2/CLKOUT pin, I/O function on RA7/OSC1/CLKIN)
 #pragma config WDTE = OFF       // Watchdog Timer Enable bit (WDT disabled and can be enabled by SWDTEN bit of the WDTCON register)
 #pragma config PWRTE = OFF      // Power-up Timer Enable bit (PWRT disabled)
@@ -48,28 +48,33 @@
 #pragma config BOR4V = BOR40V   // Brown-out Reset Selection bit (Brown-out Reset set to 4.0V)
 #pragma config WRT = OFF        // Flash Program Memory Self Write Enable bits (Write protection off)
 
+/* ------------------------ Variables globales ------------------------------ */
+// TODO: Agregar tabla de conversión a 7 segmentos
+
 /* ------------------------ Prototipos de funciones ------------------------- */
 void gpio_config();
+void int_config();
 
 /* ------------------------ Implementación de funciones --------------------- */
-void main(void) {               // Función principal
+void main(void) {               // Función principal    
     gpio_config();              // Inicializo las entradas y salidas
+    int_config();               // Configuro la interrupción externa
     
     PIN_LED1 = 0;               // Apago el LED1
+    PORTD = 0;                  // Apago el display de 7 segmentos
     
     while(1) {                  // Super loop
-        if( PIN_TEC1 == 0 ) {   // Espero que se presione la TEC1
-            PIN_LED1 = 1;       // Enciendo el LED1
-        }
-
-        __delay_ms(10);
+        PIN_LED1 = 1;           // Enciendo el LED1
+        __delay_ms(500);
+        PIN_LED1 = 0;
+        __delay_ms(500);
     }
     
     return;
 }
 
 void interrupt isr() {          // Rutina de atención de interrupciones
-
+    // TODO: Completar rutina de interrupción
 }
 
 void gpio_config() {
@@ -78,5 +83,11 @@ void gpio_config() {
     
     TRIS_TEC1 = 1;              // Configuro la TEC1 como entrada
     TRIS_LED1 = 0;              // Configuro el LED1 como salida
+    
+    TRISD = 0;                  // Pines del display como salida
+}
+
+void int_config() {
+    // TODO: Completar inicialización de interrupción externa
 }
 /* ------------------------ Fin de archivo ---------------------------------- */
